@@ -1,11 +1,3 @@
-# このコードは、答えのコードです。
-# 生徒の編集によって実行ができなくなったり、
-# 時間の問題でコピペで進める際に使用してください。
-# なので、画像、音声の相対パスは、このファイルのある場所を基準とはしておらず、
-# このコードを実行してもエラーが出力されます。
-
-# 準備内容：コードの理解、音源ダウンロードお試し、画像トリミングお試し。
-
 # 1 - インポート
 import random
 import sys
@@ -20,21 +12,18 @@ from pygame.locals import *
 # 2.1 - ゲームの初期化
 pygame.init()
 mixer.init()
-# (mixerは音声を扱うためのモジュール)
 WIDTH = 400
 HEIGHT = 800
 (p_x, p_y) = (200, 400)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # 2.2 player に関する設定
-p_v = 3
+p_v = 5
 
 # 2.3 player の laser に関する設定
+is_shot = False
 p_lasers = []
-p_laser_v = 8
-
-#p_laserを連続で打ちたい場合
-# p_laser_timer = 5
+p_laser_v = 10
 
 # 2.4 enemy に関する設定
 e_v = 1
@@ -54,12 +43,10 @@ castle_size = (64, 64)
 positions = [(0, 700), (100, 700), (200, 700), (300, 700)]
 castle_hp_init = 5
 castle_hp_list = [castle_hp_init] * 4
-# 中身を４回繰り返す
 castles_rect = [pygame.Rect(positions[i], castle_size) for i in range(4)]
 
 # 2.7 文字に関する設定
 font_top = pygame.font.Font(None, 40)
-# 引数は（フォント、サイズ）
 font_hp = pygame.font.Font(None, 55)
 font_clock = pygame.font.Font(None, 100)
 font_counter = pygame.font.Font(None, 45)
@@ -106,6 +93,7 @@ e_laser_sound = mixer.Sound("./resources/se/e_laser.mp3")
 e_laser_castle_hit_sound = mixer.Sound("./resources/se/e_laser_castle_hit.mp3")
 
 
+
 # 2.14 - bgm の再生
 mixer.music.load("./resources/bgm/bgm01.mp3")
 mixer.music.play(-1)
@@ -138,7 +126,6 @@ while True:
 
         # 7.1 - 画面に player を描画
         screen.blit(player, (p_x, p_y))
-        # 引数に（画像、座標）
 
         # 7.2 player の レーザーを描画
         for p_laser_i, p_laser in enumerate(p_lasers):
@@ -187,6 +174,8 @@ while True:
                     p_hit_enemy_counter += 1
                     p_laser_hit_sound.play()
 
+                    is_shot = False
+
         # 7.4 - enemy のレーザー描画
         for e_laser_i, e_laser in enumerate(e_lasers):
             e_laser[1] += e_laser_v
@@ -222,7 +211,6 @@ while True:
 
         # 7.6 ゲームタイマーを表示
         pygame.draw.rect(screen, (40, 40, 40), Rect(0, 0, WIDTH, timer_height))
-        #↑ タイマー、スコアなどが描画される部分の背景を作成。
         now_time = pygame.time.get_ticks() - start_time
         fight_time_counter = now_time / 1000
         left_time = (GAME_TIME - now_time) // 1000 if (GAME_TIME - now_time) >= 0 else 0
@@ -240,6 +228,7 @@ while True:
 
         # 7.7 - スコア画面への遷移
         if sum(castle_hp_list) <= 0 or left_time <= 0:
+            is_shot = False
             scene = 2
 
     # 8 - 「SCORE」画面
@@ -297,13 +286,14 @@ while True:
                 scene = 1
 
             # 10.1 - ゲーム中にスペースキーを押したらレーザーを発射する
+
             # ここでレーザーを発射するコードを入力
-            if event.key == K_SPACE and scene == 1:
-                p_lasers.append(
-                    [p_x + p_width / 2 - p_laser_width / 2, p_y - p_laser_height]
-                )
-                p_laser_counter += 1
-                p_laser_sound.play()
+            # if pressed_key[K_SPACE] and scene == 1:
+            #     p_lasers.append(
+            #         [p_x + p_width / 2 - p_laser_width / 2, p_y - p_laser_height]
+            #     )
+            #     p_laser_counter += 1
+            #     p_laser_sound.play()
 
             # 10.2 - Score 画面で t を押したらスタート画面へ戻る
             if event.key == K_t and scene == 2:
@@ -314,6 +304,7 @@ while True:
                 enemies = []
                 e_lasers = []
                 scene = 0
+                is_shot = False
 
             # 10.3 - Score 画面で r を押したらゲームを始める
             if event.key == K_r and scene == 2:
@@ -325,19 +316,33 @@ while True:
                 enemies = []
                 e_lasers = []
                 scene = 1
+                is_shot = False
 
     # 11 - player の動作
     # ここでプレイヤーを動かすコードを入力
     pressed_key = pygame.key.get_pressed()
-    if pressed_key[K_LEFT]:
-        if p_x > 0:
-            p_x -= p_v
-    if pressed_key[K_RIGHT]:
-        if p_x < WIDTH - p_width:
-            p_x += p_v
-    if pressed_key[K_UP]:
-        if p_y > timer_height:
-            p_y -= p_v
-    if pressed_key[K_DOWN]:
-        if p_y < HEIGHT - p_height:
-            p_y += p_v
+    # if pressed_key[K_RIGHT] and p_x < WIDTH - p_width:
+    #     p_x = p_x + p_v
+    
+    # if pressed_key[K_LEFT] and p_x > 0 :
+    #     p_x = p_x - p_v
+    # if pressed_key[K_UP] and p_y > 0+ timer_height:
+    #     p_y = p_y - p_v
+    
+    # if pressed_key[K_DOWN] and p_y < HEIGHT - p_height:
+    #     p_y = p_y + p_v
+
+    if enemies:
+        closest_enemy = enemies[0]
+        # closest_enemy = [e_x,e_y]
+        p_x = closest_enemy[0]
+        if not is_shot:
+            p_lasers.append(
+            [p_x + p_width / 2 - p_laser_width / 2, p_y - p_laser_height]
+            )
+            # enemies.pop(0)s
+            p_laser_counter += 1
+            p_laser_sound.play()
+
+            is_shot = True
+
