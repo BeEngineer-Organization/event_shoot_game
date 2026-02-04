@@ -28,11 +28,11 @@ HEIGHT = 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # 2.2 player に関する設定
-p_v = 3
+p_v = 15
 
 # 2.3 player の laser に関する設定
 p_lasers = []
-p_laser_v = 8
+p_laser_v = 18
 
 # 2.4 enemy に関する設定
 e_v = 1
